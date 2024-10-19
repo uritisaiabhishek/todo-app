@@ -30,6 +30,14 @@ jobs:
           npm install
           npm install --save-dev gh-pages
       
+      - name: Set up Firebase environment variables
+        run: echo "VITE_API_KEY=${{ secrets.VITE_API_KEY }}" >> $GITHUB_ENV && \
+            echo "VITE_AUTH_DOMAIN=${{ secrets.VITE_AUTH_DOMAIN }}" >> $GITHUB_ENV && \
+            echo "VITE_PROJECT_ID=${{ secrets.VITE_PROJECT_ID }}" >> $GITHUB_ENV && \
+            echo "VITE_STORAGE_BUCKET=${{ secrets.VITE_STORAGE_BUCKET }}" >> $GITHUB_ENV && \
+            echo "VITE_MESSAGING_SENDER_ID=${{ secrets.VITE_MESSAGING_SENDER_ID }}" >> $GITHUB_ENV && \
+            echo "VITE_APP_ID=${{ secrets.VITE_APP_ID }}" >> $GITHUB_ENV
+
       - name: Build project
         run: npm run build
       
@@ -41,4 +49,4 @@ jobs:
       - name: Deploy to GitHub Pages
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }} # Use the GitHub token for authentication
-        run: npx gh-pages -d dist -r https://$GH_TOKEN@github.com/uritisaiabhishek/todo-app.git # Change dist to build if needed
+        run: npx gh-pages -d build -r https://$GH_TOKEN@github.com/uritisaiabhishek/todo-app.git # Ensure 'build' is correct
