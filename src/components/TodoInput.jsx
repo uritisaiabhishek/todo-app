@@ -1,4 +1,3 @@
-// src/components/TodoInput.jsx
 import React, { useState } from 'react';
 
 const TodoInput = ({ addTodo, addCategory, categories }) => {
@@ -7,17 +6,24 @@ const TodoInput = ({ addTodo, addCategory, categories }) => {
   const [newCategory, setNewCategory] = useState('');
 
   const handleAddTodo = () => {
-    if (text.trim() !== '') {
-      let categoryToAdd = selectedCategory;
-      if (selectedCategory === 'new-category' && newCategory.trim() !== '') {
-        addCategory(newCategory);
-        categoryToAdd = newCategory;
-        setNewCategory('');
-      }
-      addTodo(text, categoryToAdd);
-      setText('');
-      setSelectedCategory('');
+    if (text.trim() === '') {
+      return; // Early exit if text is empty
     }
+
+    let categoryToAdd = selectedCategory;
+    
+    // Check if new category is being added
+    if (selectedCategory === 'new-category' && newCategory.trim() !== '') {
+      // Call the addCategory function to store the new category
+      addCategory(newCategory);
+      categoryToAdd = newCategory; // Use the new category for the todo
+      setNewCategory(''); // Clear the new category input
+    }
+
+    // Call the addTodo function to add the todo item
+    addTodo(text, categoryToAdd);
+    setText(''); // Clear the todo text input
+    setSelectedCategory(''); // Reset selected category
   };
 
   return (

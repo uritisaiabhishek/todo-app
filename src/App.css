@@ -346,3 +346,26 @@ button {
 .logout-button:hover {
   background-color: var(--button-hover-background); /* Adjust as per your theme */
 }
+
+/* src/App.css */
+.loading {
+  font-size: 20px;
+  text-align: center;
+  margin-top: 50px;
+}
+
+
+.todo-filters {
+  margin: 25px 0; /* Spacing below the filters */
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.todo-filters label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  cursor: pointer; /* Change cursor to indicate it's clickable */
+}
