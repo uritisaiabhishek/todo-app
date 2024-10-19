@@ -50,4 +50,4 @@ jobs:
       - name: Deploy to GitHub Pages
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }} # Use the GitHub token for authentication
-        run: npx gh-pages -d build -r https://$GH_TOKEN@github.com/uritisaiabhishek/todo-app.git # Ensure 'build' is correct
+        run: npx gh-pages -d dist -r https://$GH_TOKEN@github.com/uritisaiabhishek/todo-app.git # Ensure 'build' is correct
