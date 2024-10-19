@@ -10,6 +10,10 @@
   --button-hover: #505075;
 }
 
+h1{
+  text-align: center;
+}
+
 /* Light Mode Theme Variables */
 body.light-theme {
   --background-color: #f0f0f5;
@@ -116,7 +120,11 @@ body {
 }
 
 /* Theme Toggle Button */
+
 .theme-toggle {
+  position: fixed;
+  top: 10px;
+  right: 10px;
   background-color: var(--button-background);
   color: var(--text-color);
   border: none;
@@ -130,6 +138,9 @@ body {
   background-color: var(--button-hover);
 }
 
+.theme-toggle svg{
+  height: 25px;
+}
 
 /* TodoInput Component Styles */
 .todo-input {
@@ -213,4 +224,125 @@ body {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+/* src/App.css */
+
+/* Styles for Login Popup */
+
+.login-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--background-color);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  text-align: center;
+}
+
+.login-popup input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.login-popup button {
+  padding: 10px 15px;
+  background-color: var(--button-background);
+  color: var(--text-color);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* src/App.css or src/components/LoginPopup.css */
+
+
+.tab-header {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 15px;
+}
+
+.tab-header button {
+  padding: 10px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+.tab-header .active {
+  border-bottom: 2px solid var(--highlight-color);
+}
+
+input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+button {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  background-color: var(--button-background);
+  color: var(--button-text-color);
+  border-radius: 4px;
+}
+
+
+/* src/App.css */
+
+.error-message {
+  color: red;
+  font-size: 0.9em;
+  text-align: start;
+  margin-top: 5px;
+}
+
+/* src/App.css */
+
+.password-strength {
+  text-align: start;
+  display: block;
+  font-size: 0.9em;
+  margin-bottom: 8px;
+}
+
+/* Colors for different password strengths */
+.password-strength.weak {
+  color: red;
+}
+
+.password-strength.moderate {
+  color: yellow;
+}
+
+.password-strength.strong {
+  color: green;
+}
+
+/* src/App.css */
+.logout-button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: var(--button-background); /* Adjust as per your theme */
+  color: var(--button-text-color); /* Adjust as per your theme */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background-color: var(--button-hover-background); /* Adjust as per your theme */
 }
