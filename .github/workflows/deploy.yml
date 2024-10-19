@@ -15,7 +15,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16' # Specify the Node.js version
+          node-version: '16' # Update if needed
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
         run: |
@@ -33,5 +41,4 @@ jobs:
       - name: Deploy to GitHub Pages
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }} # Use the GitHub token for authentication
-        run: npx gh-pages -d dist -r https://$GH_TOKEN@github.com/uritisaiabhishek/todo-app.git # Replace <username> with your GitHub username
-          
+        run: npx gh-pages -d build -r https://$GH_TOKEN@github.com/uritisaiabhishek/todo-app.git # Change dist to build if needed
