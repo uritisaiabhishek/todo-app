@@ -33,6 +33,7 @@ body {
 /* Additional Styles for Card Layout */
 .todo-list {
   display: grid;
+  padding: 0;
   grid-template-columns: repeat(6, 1fr); /* 6 columns */
   gap: 15px; /* Space between the cards */
 }
@@ -47,7 +48,8 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 150px;
+  /* height: 150px; */
+  gap: 20px;
   text-align: left;
   transition: background-color 0.3s, color 0.3s;
 }
@@ -96,11 +98,25 @@ body {
   }
 }
 
-/* Container for the lists */
 .todo-list-container {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* One column for each category */
+  grid-template-columns: repeat(6, 1fr);
   gap: 15px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .todo-list-container {
+      grid-template-columns: repeat(2, 1fr); /* 2 columns for smaller screens */
+      gap: 10px; /* Adjust gap for mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .todo-list-container {
+      grid-template-columns: 1fr; /* Single column for very small screens */
+      gap: 8px; /* Smaller gap for very small screens */
+  }
 }
 
 /* Category column styling */
@@ -113,6 +129,9 @@ body {
 
 .todo-category h2 {
   margin-bottom: 10px;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 800;
   color: var(--text-color);
   font-size: 1.2em;
   border-bottom: 1px solid var(--border-color);
@@ -146,8 +165,9 @@ body {
 .todo-input {
   margin: 10px auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  width: max-content;
+  width: max(80%, 90%);
   gap: 10px;
   background-color: var(--input-background);
   padding: 10px;
@@ -156,7 +176,7 @@ body {
 }
 
 .todo-input input {
-  max-width: 350px;
+  width: 100%;
   flex: 1;
   padding: 10px;
   border: 1px solid var(--border-color);
@@ -172,6 +192,7 @@ body {
 }
 
 .todo-input select {
+  width: 300px;
   padding: 10px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
@@ -341,6 +362,9 @@ button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 70px;
 }
 
 .logout-button:hover {

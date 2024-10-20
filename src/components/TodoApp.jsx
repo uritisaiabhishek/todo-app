@@ -173,6 +173,10 @@ const TodoApp = () => {
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
+  
+  useEffect(() => {
+    document.body.className = darkMode ? '' : 'light-theme';
+  }, [darkMode]);
 
   const logout = () => {
     signOut(auth)
