@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 
 const LoginPopup = ({ onLogin, onSignUp }) => {
   const [activeTab, setActiveTab] = useState('login');
-  const [email, setEmail] = useState('saiabhishek@gmail.com');
-  const [password, setPassword] = useState('abhishek');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [passwordStrength, setPasswordStrength] = useState('');
