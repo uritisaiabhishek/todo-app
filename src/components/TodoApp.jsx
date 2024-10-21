@@ -1,8 +1,23 @@
 // src/components/TodoApp.jsx
 import React, { useState, useEffect } from 'react';
-import { auth, db } from '../firebase'; // Adjust the import path based on your project structure
-import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { collection, addDoc, onSnapshot, query, where, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
+import {
+  onAuthStateChanged,
+  signOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from 'firebase/auth';
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  where,
+  updateDoc,
+  doc,
+  getDoc,
+  deleteDoc,
+} from 'firebase/firestore';
 import TodoInput from './TodoInput';
 import TodoList from './TodoList';
 import LoginPopup from './LoginPopup';
@@ -10,162 +25,156 @@ import LoginPopup from './LoginPopup';
 const TodoApp = () => {
   const [todos, setTodos] = useState([]);
   const [darkMode, setDarkMode] = useState(true);
-  const [categories, setCategories] = useState([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication state
-  const [loading, setLoading] = useState(true); // Loading state
-  const [showCompleted, setShowCompleted] = useState(false); // New state for completed filter
+  const [todoLists, settodoLists] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Load todos from Firestore
-  const loadTodos = async () => {
-    const todosCollection = collection(db, 'todos');
-    const todoSnapshot = await getDocs(todosCollection);
-    const todosList = todoSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setTodos(todosList);
-  };
-
+  // Fetch lists with todos when authenticated
   useEffect(() => {
-    const user = auth.currentUser;
-
-    // const unsubscribe = onAuthStateChanged(auth, (user) => {
-    //   if (user) {
-    //     setIsAuthenticated(true); // User is signed in
-    //     loadTodos(); // Load todos when user is authenticated
-    //   } else {
-    //     setIsAuthenticated(false); // No user is signed in
-    //   }
-    //   setLoading(false); // Set loading to false after checking auth state
-    // });
-
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Fetch todos from Firestore when user is authenticated
-        const todosRef = collection(db, 'todos');
-        const q = query(todosRef, where('userId', '==', user.uid));
+        const listsRef = collection(db, 'lists');
+        const q = query(listsRef, where('userId', '==', user.uid));
 
         const unsubscribeTodos = onSnapshot(q, (snapshot) => {
-          const fetchedTodos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setTodos(fetchedTodos);
-          console.log('Fetched Todos:', fetchedTodos);
-
-          // Set categories based on fetched todos
-          const uniqueCategories = [...new Set(fetchedTodos.map(todo => todo.category))];
-          setCategories(uniqueCategories);
+          const fetchedLists = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setTodos(fetchedLists);
+          settodoLists(fetchedLists.map((list) => list.listName));
         });
 
-        setIsAuthenticated(true); // User is signed in
+        setIsAuthenticated(true);
 
-        // Cleanup subscription on unmount
         return () => unsubscribeTodos();
       } else {
-        setIsAuthenticated(false); // No user is signed in
-        setTodos([]); // Clear todos
-        setCategories([]); // Clear categories
+        setIsAuthenticated(false);
+        setTodos([]);
+        settodoLists([]);
       }
     });
 
     setLoading(false);
 
-    console.log("isAuthenticated : ", isAuthenticated);
-
-    console.log('Current User:', user);
-
-    // Cleanup auth subscription on unmount
     return () => unsubscribeAuth();
   }, []);
 
-
-  const addCategory = (category) => {
-    // Prevent adding duplicates
-    if (!categories.includes(category)) {
-      setCategories([...categories, category]);
-    }
-  };
-
-  const addTodo = async (text, category) => {
-    const user = auth.currentUser; // Get the currently authenticated user
-    if (user) {
+  const addTodo = async (listId, task) => {
+    const user = auth.currentUser;
+    if (user && typeof task === 'string' && task.trim() !== '') {
       try {
-        await addDoc(collection(db, 'todos'), {
-          text,
-          category,
-          completed: false,
-          userId: user.uid, // Store the user ID with the todo
-        });
+        const listRef = doc(db, 'lists', listId);
+        const listDoc = await getDoc(listRef);
+
+        if (listDoc.exists()) {
+          const listData = listDoc.data();
+          const updatedTodos = [
+            ...listData.todos,
+            {
+              id: Date.now().toString(),
+              text: task,
+              completed: false,
+            },
+          ];
+
+          await updateDoc(listRef, { todos: updatedTodos });
+
+          setTodos((prevTodos) =>
+            prevTodos.map((list) =>
+              list.id === listId ? { ...list, todos: updatedTodos } : list
+            )
+          );
+        }
       } catch (error) {
         console.error('Error adding todo:', error);
       }
+    } else {
+      console.error('Invalid task: Task must be a non-empty string.');
     }
   };
-  
-  // const addTodo = async (text, category) => {
-  //   try {
-  //     const docRef = await addDoc(collection(db, 'todos'), { 
-  //       text, 
-  //       category, 
-  //       completed: false,
-  //       uid: auth.currentUser.uid // Optional: associate the todo with the user
-  //     });
-  //     setTodos([...todos, { id: docRef.id, text, category, completed: false }]);
-  //   } catch (e) {
-  //     console.error('Error adding todo: ', e);
-  //   }
-  // };
 
-  const onLogin = (email, password) => {
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // User signed in
-        console.log('User logged in:', userCredential.user);
-        setIsAuthenticated(true);
-      })
-      .catch((error) => {
-        console.error('Login error:', error);
-        // Handle error
-      });
-  };
-
-  const onSignUp = (email, password) => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // User signed up
-        console.log('User signed up:', userCredential.user);
-        setIsAuthenticated(true);
-      })
-      .catch((error) => {
-        console.error('Sign up error:', error);
-        // Handle error
-      });
-  };
-
-  
-  const toggleTodo = async (id) => {
-    const todoToToggle = todos.find((todo) => todo.id === id);
-    
-    if (todoToToggle) {
-      const todoRef = doc(db, 'todos', id); // Get the reference to the todo document
+  const toggleTodo = async (listId, todoId) => {
+    const user = auth.currentUser;
+    if (user) {
       try {
-        await updateDoc(todoRef, { completed: !todoToToggle.completed }); // Update the completed status in Firestore
-        
-        // Optionally update local state after Firestore update
-        setTodos(
-          todos.map((todo) =>
-            todo.id === id ? { ...todo, completed: !todo.completed } : todo
-          )
-        );
+        const listRef = doc(db, 'lists', listId);
+        const listDoc = await getDoc(listRef);
+
+        if (listDoc.exists()) {
+          const listData = listDoc.data();
+          const updatedTodos = listData.todos.map((todo) =>
+            todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
+          );
+
+          await updateDoc(listRef, { todos: updatedTodos });
+
+          setTodos((prevTodos) =>
+            prevTodos.map((list) =>
+              list.id === listId ? { ...list, todos: updatedTodos } : list
+            )
+          );
+        }
       } catch (error) {
-        console.error('Error updating todo:', error);
+        console.error('Error toggling todo:', error);
       }
     }
   };
 
-  const deleteTodo = async (id) => {
-    try {
-      const todoRef = doc(db, 'todos', id); // Get the reference to the todo document
-      await deleteDoc(todoRef); // Delete the todo from Firestore
-      // Update local state to remove the deleted todo
-      setTodos(todos.filter((todo) => todo.id !== id));
-    } catch (error) {
-      console.error('Error deleting todo:', error); // Log any errors
+  const deleteTodo = async (listId, todoId) => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const listRef = doc(db, 'lists', listId);
+        const listDoc = await getDoc(listRef);
+
+        if (listDoc.exists()) {
+          const listData = listDoc.data();
+          const updatedTodos = listData.todos.filter((todo) => todo.id !== todoId);
+
+          await updateDoc(listRef, { todos: updatedTodos });
+
+          setTodos((prevTodos) =>
+            prevTodos.map((list) =>
+              list.id === listId ? { ...list, todos: updatedTodos } : list
+            )
+          );
+        }
+      } catch (error) {
+        console.error('Error deleting todo:', error);
+      }
+    }
+  };
+
+  const handleAddList = async (newList) => {
+    const user = auth.currentUser;
+    if (user && typeof newList === 'string' && newList.trim() !== '') {
+      try {
+        await addDoc(collection(db, 'lists'), {
+          listName: newList,
+          userId: user.uid,
+          todos: [],
+        });
+
+        settodoLists([...todoLists, newList]);
+      } catch (error) {
+        console.error('Error adding new list:', error);
+      }
+    } else {
+      console.error('Invalid list name: Must be a non-empty string.');
+    }
+  };
+
+  const handleDeleteList = async (listId) => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const listRef = doc(db, 'lists', listId);
+        await deleteDoc(listRef); // Use deleteDoc to delete the list from Firestore
+        settodoLists((prevLists) => prevLists.filter((list) => list.id !== listId)); // Update local state
+      } catch (error) {
+        console.error('Error deleting list:', error);
+      }
     }
   };
   
@@ -173,44 +182,42 @@ const TodoApp = () => {
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
-  
+
   useEffect(() => {
     document.body.className = darkMode ? '' : 'light-theme';
   }, [darkMode]);
 
+  const onLogin = (email, password) => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => setIsAuthenticated(true))
+      .catch((error) => console.error('Login error:', error));
+  };
+
+  const onSignUp = (email, password) => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(() => setIsAuthenticated(true))
+      .catch((error) => console.error('Sign up error:', error));
+  };
+
   const logout = () => {
     signOut(auth)
-      .then(() => {
-        console.log('User logged out');
-        setIsAuthenticated(false);
-      })
-      .catch((error) => {
-        console.error('Logout error:', error);
-        // Handle error
-      });
+      .then(() => setIsAuthenticated(false))
+      .catch((error) => console.error('Logout error:', error));
   };
 
-
-  // Add this function to toggle show completed
-  const handleShowCompletedChange = () => {
-    setShowCompleted(!showCompleted);
-  };
-
-  // Show loading message while checking auth state
   if (loading) {
     return <div>Loading...</div>;
   }
 
   if (!isAuthenticated) {
-    // Show the login popup exclusively if the user is not authenticated
     return <LoginPopup onLogin={onLogin} onSignUp={onSignUp} />;
   }
 
-  // Show the Todo App only if authenticated
   return (
     <div className="todo-app">
       <h1>Todo App</h1>
       <button onClick={logout} className="logout-button">Logout</button>
+      
       <button onClick={toggleDarkMode} className="theme-toggle">
         {darkMode ? 
           <>
@@ -225,41 +232,23 @@ const TodoApp = () => {
         }
       </button>
 
+      <TodoInput handleAddList={handleAddList} />
 
-      {/* New Todo Filters Section */}
-      <div className="todo-filters">
-        <label>
-          <input
-            type="checkbox"
-            checked={showCompleted}
-            onChange={handleShowCompletedChange}
-          />
-          <span>Show&nbsp;Completed</span>
-        </label>
-      </div>
-
-      <TodoInput addTodo={addTodo} addCategory={addCategory} categories={categories} />
       <div className="todo-list-container">
-      {categories.map((category) => {
-          // Filter todos for the current category
-          const filteredTodos = todos.filter(todo => todo.category === category);
+        {todos.map((list) => {
 
-          // Check if there are any incomplete todos in this category
-          const hasIncompleteTodos = filteredTodos.some(todo => !todo.completed);
-
-          // Only render the TodoList if there are incomplete todos or if the showCompleted option is enabled
-          if (hasIncompleteTodos || showCompleted) {
-            return (
-              <TodoList
-                key={category}
-                title={category}
-                todos={filteredTodos.filter(todo => showCompleted || !todo.completed)} // Filter based on completed status
-                toggleTodo={toggleTodo}
-                deleteTodo={deleteTodo}
-              />
-            );
-          }
-          return null; // Do not render this category if all todos are completed and showCompleted is false
+          return (
+            <TodoList
+              key={list.id}
+              title={list.listName}
+              todos={list.todos}
+              addTodo={(task) => addTodo(list.id, task)}
+              toggleTodo={(todoId) => toggleTodo(list.id, todoId)}
+              deleteTodo={(todoId) => deleteTodo(list.id, todoId)}
+              handleDeleteList={() => handleDeleteList(list.id)}
+            />
+          );
+          
         })}
       </div>
     </div>

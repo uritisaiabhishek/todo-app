@@ -32,37 +32,26 @@ body {
 
 /* Additional Styles for Card Layout */
 .todo-list {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   padding: 0;
-  grid-template-columns: repeat(6, 1fr); /* 6 columns */
-  gap: 15px; /* Space between the cards */
+  max-width: 100%;
 }
 
 .todo-item {
-  background-color: var(--input-background);
   color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: space-between;
-  /* height: 150px; */
   gap: 20px;
-  text-align: left;
   transition: background-color 0.3s, color 0.3s;
 }
 
 .todo-item.completed span {
   text-decoration: line-through;
   color: #777;
-}
-
-.todo-item div {
-  margin-top: auto;
-  display: flex;
-  justify-content: space-between;
 }
 
 .todo-item button {
@@ -79,55 +68,49 @@ body {
   background-color: var(--button-hover);
 }
 
-/* Responsive Styles */
-@media (max-width: 1200px) {
-  .todo-list {
-    grid-template-columns: repeat(4, 1fr); /* 4 columns for medium screens */
-  }
-}
-
-@media (max-width: 768px) {
-  .todo-list {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns for smaller screens */
-  }
-}
-
-@media (max-width: 480px) {
-  .todo-list {
-    grid-template-columns: 1fr; /* 1 column for mobile screens */
-  }
-}
-
 .todo-list-container {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  display: flex;
+  max-width: 100%;
+  flex-wrap: wrap;
   gap: 15px;
 }
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .todo-list-container {
-      grid-template-columns: repeat(2, 1fr); /* 2 columns for smaller screens */
       gap: 10px; /* Adjust gap for mobile */
   }
 }
 
 @media (max-width: 480px) {
   .todo-list-container {
-      grid-template-columns: 1fr; /* Single column for very small screens */
       gap: 8px; /* Smaller gap for very small screens */
   }
 }
 
-/* Category column styling */
-.todo-category {
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .todo-todoList {
+    width: calc(50% - 35px);
+  }
+}
+
+@media (max-width: 480px) {
+  .todo-todoList {
+    width: 100%;
+  }
+}
+
+/* todoList column styling */
+.todo-todoList {
+  position: relative;
   background-color: var(--input-background);
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.todo-category h2 {
+.todo-todoList h2 {
   margin-bottom: 10px;
   text-align: center;
   text-transform: uppercase;
@@ -163,27 +146,40 @@ body {
 
 /* TodoInput Component Styles */
 .todo-input {
-  margin: 10px auto;
+  gap: 10px;
   display: flex;
-  flex-wrap: wrap;
+  padding: 10px;
+  margin: 10px auto;
+  border-radius: 8px;
   align-items: center;
   width: max(80%, 90%);
-  gap: 10px;
   background-color: var(--input-background);
-  padding: 10px;
-  border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .todo-input {
+    width: unset;
+  }
+}
+
+@media (max-width: 480px) {
+  .todo-input {
+    /* flex-direction: column; */
+  }
+}
+
+
 .todo-input input {
   width: 100%;
-  flex: 1;
   padding: 10px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
   background-color: var(--background-color);
   color: var(--text-color);
   outline: none;
+  margin: 0;
   transition: border-color 0.3s;
 }
 
@@ -191,24 +187,10 @@ body {
   border-color: var(--button-background);
 }
 
-.todo-input select {
-  width: 300px;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  outline: none;
-  transition: border-color 0.3s;
-}
-
-.todo-input select:focus {
-  border-color: var(--button-background);
-}
-
 .todo-input button {
   padding: 10px 15px;
   border: none;
+  text-wrap: nowrap;
   border-radius: 4px;
   background-color: var(--button-background);
   color: var(--text-color);
@@ -220,15 +202,15 @@ body {
   background-color: var(--button-hover);
 }
 
-/* New Category Input Styles */
-.new-category-input {
+/* New todoList Input Styles */
+.new-todoList-input {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-top: 10px;
 }
 
-.new-category-input input {
+.new-todoList-input input {
   flex: 1;
   padding: 8px;
   border: 1px solid var(--border-color);
@@ -238,7 +220,7 @@ body {
   outline: none;
 }
 
-.new-category-input button {
+.new-todoList-input button {
   padding: 8px 12px;
   background-color: var(--button-background);
   color: var(--text-color);
@@ -392,4 +374,91 @@ button {
   gap: 5px;
   width: fit-content;
   cursor: pointer; /* Change cursor to indicate it's clickable */
+}
+
+.addTaskList {
+  width: 100%;
+  gap: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.addTaskList input{
+  width: 100%;
+  flex: 1;
+  padding: 10px;
+  margin: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.square-border{
+  height: 12px;
+  width: 12px;
+  border: 2px solid var(--border-color);
+}
+
+.square{
+  height: 12px;
+  width: 12px;
+  background-color: #fff;
+  border: 2px solid #fff;
+}
+
+.completed .square{
+  background-color: #777;
+  border: 2px solid #777;  
+}
+
+.deleteTodo{
+  width: fit-content;
+  padding: 8px 10px !important;
+  cursor: pointer;
+  display: flex;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--button-background);
+  color: var(--text-color);
+  transition: background-color 0.3s;
+  align-items: center;
+  justify-content: center;
+}
+
+.deleteTodo svg{
+  height: 20px;
+}
+
+.flex{
+  display: flex;
+}
+
+.gap-10{
+  gap: 10px;
+}
+
+.gap-20{
+  gap: 20px;
+}
+
+.alignCenter{
+  align-items: center;
+}
+
+.deleteTaskList{
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 6px 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deleteTaskList svg{
+  height: 15px;
+  width: 15px;
 }
